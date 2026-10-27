@@ -406,3 +406,39 @@ func TestAdversarialAuditChainIntegrity(t *testing.T) {
 		t.Errorf("SECURITY DEFECT: audit log failed to detect deleted intermediate event")
 	}
 }
+
+func TestAdversarialFailClosedBehavior(t *testing.T) {
+	pol := DefaultPolicy()
+	secretKey := []byte("secret-key-32b-length-minimum!")
+
+	// 1. Nil proposal in Authorize
+	if _, err := Authorize(nil, ApproverInfo{}, "d1", "d2", pol, "APPROVED", "reason", secretKey); err == nil {
+		t.Errorf("expected Authorize(nil) to fail closed")
+	}
+
+	// 2. Nil record in VerifyApproval
+	if err := VerifyApproval(nil, "d1", "d2", secretKey); err == nil {
+		t.Errorf("expected VerifyApproval(nil) to fail closed")
+	}
+
+	// 3. Nil proposal in Adjudicate
+	if _, err := Adjudicate(nil, &verify.Verdict{}, &verify.Document{}, pol); err == nil {
+		t.Errorf("expected Adjudicate(nil prop) to fail closed")
+	}
+
+	// 4. Nil verdict in Adjudicate
+	prop := mockValidProposal()
+	if _, err := Adjudicate(&prop, nil, &verify.Document{}, pol); err == nil {
+		t.Errorf("expected Adjudicate(nil verdict) to fail closed")
+	}
+
+	// 5. Nil document in Adjudicate
+	if _, err := Adjudicate(&prop, &verify.Verdict{}, nil, pol); err == nil {
+		t.Errorf("expected Adjudicate(nil doc) to fail closed")
+	}
+
+	// 6. Nil proposal in ValidateProposalPolicy
+	if err := pol.ValidateProposalPolicy(nil); err == nil {
+		t.Errorf("expected ValidateProposalPolicy(nil) to fail closed")
+	}
+}
