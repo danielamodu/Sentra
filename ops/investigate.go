@@ -288,11 +288,12 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 		}
 	}
 
-	// Hypothesis C: Queue Congestion & Cascading Timeouts
-	if sum.Shed > 0 || (sum.QueueWait.N > 0 && float64(sum.QueueWait.P99) > 10_000_000) { // 10ms
+	// Hypothesis 4: Queue Congestion & Cascading Timeouts
+	// Only form queue congestion hypothesis if actual queue drops or high queue wait occurred
+	if queueShedCount > 0 || (sum.QueueWait.N > 0 && float64(sum.QueueWait.P99) > 10_000_000) { // 10ms
 		var sup []Observation
 		for _, o := range obs {
-			if o.Metric == "ShedRequests" || o.Metric == "QueueWaitP99NS" || o.Metric == "ExpiredRequests" {
+			if o.Metric == "QueueShedRequests" || o.Metric == "ShedRequests" || o.Metric == "QueueWaitP99NS" || o.Metric == "ExpiredRequests" {
 				sup = append(sup, o)
 			}
 		}
@@ -306,7 +307,7 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 		hypotheses = append(hypotheses, Hypothesis{
 			ID:                     fmt.Sprintf("HYP-QUEUE-CONGESTION-%s", res.Experiment.Name),
 			Symptom:                SymptomQueueCongestion,
-			Description:            "Excessive queue wait times or arrival sheds indicate queue admission limits and drain rates are misconfigured relative to arrival bursts.",
+			Description:            "Excessive queue wait times or queue arrival drops indicate queue admission limits and drain rates are misconfigured relative to arrival bursts.",
 			SupportingObservations: sup,
 			CandidateParameters:    tenantParams,
 			Rationale:              "Rebalancing tenant arrival queue depths accommodates short bursts without allowing backlogs to age past logical deadlines.",
