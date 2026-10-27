@@ -44,12 +44,15 @@ func RunCIPipeline(
 		return passed
 	}
 
+	// Stage 1: Checkout and Ingest Proposal Artifacts
+	s0Start := time.Now()
 	if artifacts == nil {
 		recordStage("checkout-artifacts", false, 0, "artifacts payload is nil", "missing proposal artifacts")
 		return report, nil
 	}
+	recordStage("checkout-artifacts", true, time.Since(s0Start), "proposal artifacts bundle checked out and verified", "")
 
-	// Stage 1: Validate Proposal Schema
+	// Stage 2: Validate Proposal Schema
 	s1Start := time.Now()
 	var prop ops.Proposal
 	if err := json.Unmarshal(artifacts.ProposalJSON, &prop); err != nil {
