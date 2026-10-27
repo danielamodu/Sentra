@@ -103,11 +103,31 @@ func ExecutePromotion(
 	postVerdict := verify.Verify(postDoc)
 	rep.PostValidationVerdict = &postVerdict
 
-	// Ensure no safety property failed during post-promotion validation
+	// 1. Ensure no invariant failures or structural invalid input
 	if postVerdict.Status == verify.StatusFail || postVerdict.Status == verify.StatusInvalidInput {
 		rep.Status = "FAILED"
 		rep.RejectionReason = fmt.Sprintf("post-promotion verifier returned %s (%d findings)", postVerdict.Status, len(postVerdict.Findings))
 		return rep, fmt.Errorf("post-promotion validation failed: %s", rep.RejectionReason)
+	}
+
+	// 2. Validate each mandatory safety property under governance policy
+	propMap := make(map[string]verify.PropertyResult)
+	for _, p := range postVerdict.Properties {
+		propMap[p.ID] = p
+	}
+
+	for _, reqProp := range pol.RequiredProperties {
+		pr, exists := propMap[reqProp]
+		if !exists {
+			rep.Status = "FAILED"
+			rep.RejectionReason = fmt.Sprintf("post-promotion validation did not evaluate required safety property %s", reqProp)
+			return rep, fmt.Errorf("post-promotion validation failed: %s", rep.RejectionReason)
+		}
+		if pr.Status != verify.StatusPass {
+			rep.Status = "FAILED"
+			rep.RejectionReason = fmt.Sprintf("post-promotion required safety property %s evaluated to %s (want PASS)", reqProp, pr.Status)
+			return rep, fmt.Errorf("post-promotion validation failed: %s", rep.RejectionReason)
+		}
 	}
 
 	rep.Status = "SUCCESS"
