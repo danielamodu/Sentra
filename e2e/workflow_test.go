@@ -168,6 +168,9 @@ func TestEndToEndIntegratedOperationsWorkflow(t *testing.T) {
 	if !ciReport.Passed {
 		t.Fatalf("CI pipeline failed closed: %s", ciReport.BlockReason)
 	}
+	if len(ciReport.Stages) != 10 {
+		t.Fatalf("expected exactly 10 CI stages, got %d", len(ciReport.Stages))
+	}
 	t.Logf("CI Pipeline %s PASSED across all %d stages", ciReport.PipelineID, len(ciReport.Stages))
 	audit.Append(winningProp.ID, gov.ActionVerified, "gitlab-ci-runner", "",
 		"independent reproduction verified all mandatory properties")
