@@ -328,3 +328,37 @@ func TestAdversarialHMACAndSignatureValidation(t *testing.T) {
 		t.Errorf("SECURITY DEFECT: VerifyApproval accepted truncated signature")
 	}
 }
+
+func TestAdversarialReplayResistance(t *testing.T) {
+	pol := DefaultPolicy()
+	propA := mockValidProposal()
+	propA.ID = "prop-A-001"
+	propB := mockValidProposal()
+	propB.ID = "prop-B-002"
+
+	secretKey := []byte("sentra-security-secret-key-32b!")
+	approver := ApproverInfo{
+		ID:      "sarah-lead",
+		Name:    "Sarah SRE Lead",
+		Role:    "infrastructure-lead",
+		IsAgent: false,
+	}
+
+	// Authorize Proposal A
+	apprRecA, err := Authorize(&propA, approver, "cfg-digest-A", "verif-digest-A", pol, "APPROVED", "auth for A", secretKey)
+	if err != nil {
+		t.Fatalf("Authorize propA: %v", err)
+	}
+
+	// 1. Direct Replay: Attempting to verify Approval A against Proposal B's digests MUST fail
+	if err := VerifyApproval(apprRecA, "cfg-digest-B", "verif-digest-A", secretKey); err == nil {
+		t.Errorf("SECURITY DEFECT: replay attack succeeded across different config digests")
+	}
+
+	// 2. Identity Tampering Replay: Adversary alters ProposalID in record A to match Proposal B
+	forgedRec := *apprRecA
+	forgedRec.ProposalID = propB.ID
+	if err := VerifyApproval(&forgedRec, "cfg-digest-A", "verif-digest-A", secretKey); err == nil {
+		t.Errorf("SECURITY DEFECT: signature check failed to detect forged ProposalID")
+	}
+}
