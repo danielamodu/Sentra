@@ -52,6 +52,9 @@ func Authorize(
 	if configDigest == "" || verificationDigest == "" {
 		return nil, fmt.Errorf("authorization requires non-empty config and verification digests")
 	}
+	if len(secretKey) == 0 {
+		return nil, fmt.Errorf("authorization HMAC secret key must not be empty")
+	}
 
 	now := time.Now().UTC()
 	rec := &ApprovalRecord{
@@ -79,6 +82,9 @@ func Authorize(
 func VerifyApproval(rec *ApprovalRecord, currentConfigDigest, currentVerifDigest string, secretKey []byte) error {
 	if rec == nil {
 		return fmt.Errorf("approval record is nil")
+	}
+	if len(secretKey) == 0 {
+		return fmt.Errorf("verification HMAC secret key must not be empty")
 	}
 
 	// 1. Verify signature integrity
