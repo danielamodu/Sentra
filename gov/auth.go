@@ -128,9 +128,6 @@ func formatSignaturePayload(rec *ApprovalRecord) string {
 }
 
 func computeHMAC(message string, key []byte) string {
-	if len(key) == 0 {
-		key = []byte("sentra-default-governance-secret-key")
-	}
 	mac := hmac.New(sha256.New, key)
 	mac.Write([]byte(message))
 	return hex.EncodeToString(mac.Sum(nil))
