@@ -3,6 +3,7 @@ package ops
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	"sentra/domain"
 	"sentra/sim"
@@ -70,6 +71,37 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 		Context:     "requests load-shed at admission",
 		EvidenceRef: "summary.shed",
 	})
+
+	// Shed reason breakdown
+	breakerShedCount := 0
+	queueShedCount := 0
+	for _, ts := range sum.Tenant {
+		for reason, cnt := range ts.ShedReasons {
+		if strings.Contains(reason, "breaker") {
+			breakerShedCount += cnt
+		} else if strings.Contains(reason, "queue") {
+			queueShedCount += cnt
+		}
+	}
+	}
+	if breakerShedCount > 0 {
+		obs = append(obs, Observation{
+			Metric:      "BreakerShedRequests",
+			Value:       float64(breakerShedCount),
+			Unit:        "requests",
+			Context:     "requests load-shed due to circuit breaker trip or probe saturation",
+			EvidenceRef: "summary.tenant.shed_reasons.breaker",
+		})
+	}
+	if queueShedCount > 0 {
+		obs = append(obs, Observation{
+			Metric:      "QueueShedRequests",
+			Value:       float64(queueShedCount),
+			Unit:        "requests",
+			Context:     "requests load-shed due to tenant queue depth saturation",
+			EvidenceRef: "summary.tenant.shed_reasons.queue",
+		})
+	}
 
 	// 2. Retry and wasted work observations
 	if !math.IsNaN(sum.WastedShare) {
