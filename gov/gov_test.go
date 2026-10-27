@@ -273,3 +273,58 @@ func TestAuditLogTamperEvidence(t *testing.T) {
 	}
 	_ = e1
 }
+
+func TestAdversarialHMACAndSignatureValidation(t *testing.T) {
+	pol := DefaultPolicy()
+	prop := mockValidProposal()
+	secretKey := []byte("production-grade-secret-key-32b!")
+	wrongKey := []byte("adversary-forged-secret-key-32b!")
+
+	approver := ApproverInfo{
+		ID:      "sarah-lead",
+		Name:    "Sarah SRE Lead",
+		Role:    "infrastructure-lead",
+		IsAgent: false,
+	}
+
+	// 1. Authorize with empty secret key MUST fail closed
+	if _, err := Authorize(&prop, approver, "cfg-digest-1", "verif-digest-1", pol, "APPROVED", "ok", nil); err == nil {
+		t.Errorf("SECURITY DEFECT: Authorize allowed nil/empty HMAC key")
+	}
+
+	// 2. Authorize legally
+	apprRec, err := Authorize(&prop, approver, "cfg-digest-1", "verif-digest-1", pol, "APPROVED", "valid authorization", secretKey)
+	if err != nil {
+		t.Fatalf("legitimate Authorize failed: %v", err)
+	}
+
+	// 3. VerifyApproval with empty secret key MUST fail closed
+	if err := VerifyApproval(apprRec, "cfg-digest-1", "verif-digest-1", nil); err == nil {
+		t.Errorf("SECURITY DEFECT: VerifyApproval allowed nil/empty HMAC key")
+	}
+
+	// 4. VerifyApproval with WRONG secret key MUST fail
+	if err := VerifyApproval(apprRec, "cfg-digest-1", "verif-digest-1", wrongKey); err == nil {
+		t.Errorf("SECURITY DEFECT: VerifyApproval passed with wrong HMAC key")
+	}
+
+	// 5. VerifyApproval with single-bit signature corruption MUST fail
+	corruptSigRec := *apprRec
+	corruptBytes := []byte(corruptSigRec.Signature)
+	if corruptBytes[0] == 'a' {
+		corruptBytes[0] = 'b'
+	} else {
+		corruptBytes[0] = 'a'
+	}
+	corruptSigRec.Signature = string(corruptBytes)
+	if err := VerifyApproval(&corruptSigRec, "cfg-digest-1", "verif-digest-1", secretKey); err == nil {
+		t.Errorf("SECURITY DEFECT: VerifyApproval accepted corrupted signature")
+	}
+
+	// 6. VerifyApproval with truncated signature MUST fail
+	truncatedSigRec := *apprRec
+	truncatedSigRec.Signature = truncatedSigRec.Signature[:16]
+	if err := VerifyApproval(&truncatedSigRec, "cfg-digest-1", "verif-digest-1", secretKey); err == nil {
+		t.Errorf("SECURITY DEFECT: VerifyApproval accepted truncated signature")
+	}
+}
