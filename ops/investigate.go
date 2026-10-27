@@ -189,7 +189,61 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 	// Now synthesize explicit operational hypotheses from observed patterns
 	var hypotheses []Hypothesis
 
-	// Hypothesis A: Wasted Work & Retry Storm
+	// Hypothesis 1: Circuit Breaker Sensitivity & Recovery
+	// If breaker shedding or breaker opening occurred, identify the affected upstream deterministically
+	var upstreams []string
+	for up := range res.Experiment.Config.Upstreams {
+		upstreams = append(upstreams, string(up))
+	}
+	sort.Strings(upstreams)
+
+	var degradedUpstream domain.UpstreamID
+	for _, upStr := range upstreams {
+		up := domain.UpstreamID(upStr)
+		if res.FinalState != nil && res.FinalState.Breakers != nil {
+			if br, ok := res.FinalState.Breakers[up]; ok && br != nil {
+				if br.State != domain.BreakerClosed || br.ConsecutiveFailures > 0 {
+					degradedUpstream = up
+					break
+				}
+			}
+		}
+	}
+	if degradedUpstream == "" && len(upstreams) > 0 {
+		degradedUpstream = domain.UpstreamID(upstreams[0])
+	}
+
+	breakerActive := false
+	if degradedUpstream != "" && res.FinalState != nil && res.FinalState.Breakers != nil {
+		if br, ok := res.FinalState.Breakers[degradedUpstream]; ok && br != nil {
+			if br.State != domain.BreakerClosed || br.ConsecutiveFailures > 0 {
+				breakerActive = true
+			}
+		}
+	}
+
+	if breakerActive || breakerShedCount > 0 || sum.Failed > 0 {
+		var sup []Observation
+		for _, o := range obs {
+			if o.Metric == "FailedRequests" || o.Metric == "ShedRequests" || o.Metric == "BreakerShedRequests" {
+				sup = append(sup, o)
+			}
+		}
+		hypotheses = append(hypotheses, Hypothesis{
+			ID:                     fmt.Sprintf("HYP-BREAKER-STABILITY-%s-%s", res.Experiment.Name, degradedUpstream),
+			Symptom:                SymptomPrematureBreakerTrip,
+			Description:            fmt.Sprintf("Upstream %s breaker behavior is shedding requests; tuning cooldown or failure threshold can accelerate goodput recovery.", degradedUpstream),
+			SupportingObservations: sup,
+			CandidateParameters: []string{
+				"breaker.cooldown_ns",
+				"breaker.failure_threshold",
+				"breaker.max_half_open_probes",
+			},
+			Rationale: "Reducing breaker cooldown allows earlier recovery probing when degraded upstreams heal, while raising failure threshold prevents premature tripping on transient spikes.",
+		})
+	}
+
+	// Hypothesis 2: Wasted Work & Retry Storm
 	if sum.WastedShare > 0.10 || sum.Amplification > 1.25 || sum.WorkAfterExpiry > 0 {
 		var sup []Observation
 		for _, o := range obs {
@@ -211,7 +265,7 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 		})
 	}
 
-	// Hypothesis B: Connection Pool Bottleneck / Stranding
+	// Hypothesis 3: Connection Pool Bottleneck / Stranding
 	for up, occ := range sum.ConnOcc {
 		if occ.Util > 0.80 || (occ.Peak >= 6 && sum.WorkerOcc.Util > 0.70) {
 			var sup []Observation
@@ -259,44 +313,7 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 		})
 	}
 
-	// Hypothesis D: Circuit Breaker Sensitivity & Recovery
-	var upstreams []string
-	for up := range res.Experiment.Config.Upstreams {
-		upstreams = append(upstreams, string(up))
-	}
-	sort.Strings(upstreams)
 
-	for _, upStr := range upstreams {
-		up := domain.UpstreamID(upStr)
-		breakerActive := false
-		if res.FinalState != nil && res.FinalState.Breakers != nil {
-			if br, ok := res.FinalState.Breakers[up]; ok && br != nil {
-				if br.State != domain.BreakerClosed || br.ConsecutiveFailures > 0 {
-					breakerActive = true
-				}
-			}
-		}
-		if breakerActive || sum.Failed > 0 {
-			var sup []Observation
-			for _, o := range obs {
-				if o.Metric == "FailedRequests" || o.Metric == "ShedRequests" {
-					sup = append(sup, o)
-				}
-			}
-			hypotheses = append(hypotheses, Hypothesis{
-				ID:                     fmt.Sprintf("HYP-BREAKER-STABILITY-%s-%s", res.Experiment.Name, up),
-				Symptom:                SymptomPrematureBreakerTrip,
-				Description:            fmt.Sprintf("Upstream %s breaker behavior is shedding requests; tuning threshold or cooldown can stabilize goodput.", up),
-				SupportingObservations: sup,
-				CandidateParameters: []string{
-					"breaker.failure_threshold",
-					"breaker.cooldown_ns",
-					"breaker.max_half_open_probes",
-				},
-				Rationale: "Adjusting breaker failure threshold and cooldown prevents premature tripping while protecting concurrency during genuine outages.",
-			})
-		}
-	}
 
 	return &InvestigationReport{
 		ScenarioName: res.Experiment.Name,
