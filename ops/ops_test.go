@@ -203,6 +203,21 @@ func TestAutonomousExperimenterExecutionAndRanking(t *testing.T) {
 		if c.Verdict == nil {
 			t.Errorf("candidate %s missing verifier verdict", c.CandidateID)
 		}
+		t.Logf("Candidate %s: Goodput=%d, Shed=%d, Score=%.2f, Rejected=%t",
+			c.CandidateID, c.Summary.Completed, c.Summary.Shed, c.Score, c.Rejected)
+	}
+
+	// Verify that an actual improvement was discovered over the baseline
+	if record.BestCandidate == nil {
+		t.Fatalf("expected a surviving best candidate, got nil")
+	}
+	t.Logf("Baseline Score: %.2f (Goodput: %d) -> Best Candidate Score: %.2f (Goodput: %d)",
+		record.BaselineScore, res.Summary.Completed, record.BestCandidate.Score, record.BestCandidate.Summary.Completed)
+	if record.BestCandidate.Score <= record.BaselineScore {
+		t.Errorf("expected best candidate score %.2f to exceed baseline %.2f", record.BestCandidate.Score, record.BaselineScore)
+	}
+	if record.BestCandidate.Summary.Completed <= res.Summary.Completed {
+		t.Errorf("expected best candidate goodput %d to exceed baseline %d", record.BestCandidate.Summary.Completed, res.Summary.Completed)
 	}
 }
 
