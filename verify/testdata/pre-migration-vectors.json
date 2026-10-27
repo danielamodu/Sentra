@@ -1,0 +1,520 @@
+{
+  "corrupt-final-state": [
+    {
+      "id": "L-request-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-breaker-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-history-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-linkage",
+      "status": "PASS"
+    },
+    {
+      "id": "L-retry-budget-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-worker-conservation",
+      "status": "PASS"
+    },
+    {
+      "id": "S-worker-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-connection-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-waitlist-membership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-connection-stranding",
+      "status": "PASS"
+    },
+    {
+      "id": "S-queue-consistency",
+      "status": "PASS"
+    },
+    {
+      "id": "S-lane-bounds",
+      "status": "PASS"
+    },
+    {
+      "id": "S-tenant-active",
+      "status": "PASS"
+    },
+    {
+      "id": "S-outcome-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-budget-state",
+      "status": "PASS"
+    },
+    {
+      "id": "S-breaker-state",
+      "status": "PASS"
+    },
+    {
+      "id": "S-probe-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-horizon-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "X-entity-sets",
+      "status": "PASS"
+    },
+    {
+      "id": "X-request-final-state",
+      "status": "FAIL",
+      "findings": [
+        "X-request-final-state"
+      ]
+    },
+    {
+      "id": "X-attempt-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-attempt-parentage",
+      "status": "PASS"
+    },
+    {
+      "id": "X-breaker-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-budget-consumption",
+      "status": "PASS"
+    },
+    {
+      "id": "X-probe-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "X-tenant-active",
+      "status": "PASS"
+    }
+  ],
+  "full": [
+    {
+      "id": "L-request-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-breaker-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-history-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-linkage",
+      "status": "PASS"
+    },
+    {
+      "id": "L-retry-budget-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-worker-conservation",
+      "status": "PASS"
+    },
+    {
+      "id": "S-worker-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-connection-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-waitlist-membership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-connection-stranding",
+      "status": "PASS"
+    },
+    {
+      "id": "S-queue-consistency",
+      "status": "PASS"
+    },
+    {
+      "id": "S-lane-bounds",
+      "status": "PASS"
+    },
+    {
+      "id": "S-tenant-active",
+      "status": "PASS"
+    },
+    {
+      "id": "S-outcome-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-budget-state",
+      "status": "PASS"
+    },
+    {
+      "id": "S-breaker-state",
+      "status": "PASS"
+    },
+    {
+      "id": "S-probe-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-horizon-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "X-entity-sets",
+      "status": "PASS"
+    },
+    {
+      "id": "X-request-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-attempt-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-attempt-parentage",
+      "status": "PASS"
+    },
+    {
+      "id": "X-breaker-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-budget-consumption",
+      "status": "PASS"
+    },
+    {
+      "id": "X-probe-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "X-tenant-active",
+      "status": "PASS"
+    }
+  ],
+  "head-truncated": [
+    {
+      "id": "L-request-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-breaker-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-history-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-linkage",
+      "status": "PASS"
+    },
+    {
+      "id": "L-retry-budget-ledger",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "the ledger is truncated, so budget effects and retry decisions may fall on opposite sides of the eviction boundary"
+      ]
+    },
+    {
+      "id": "S-worker-conservation",
+      "status": "PASS"
+    },
+    {
+      "id": "S-worker-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-connection-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-waitlist-membership",
+      "status": "PASS"
+    },
+    {
+      "id": "S-connection-stranding",
+      "status": "PASS"
+    },
+    {
+      "id": "S-queue-consistency",
+      "status": "PASS"
+    },
+    {
+      "id": "S-lane-bounds",
+      "status": "PASS"
+    },
+    {
+      "id": "S-tenant-active",
+      "status": "PASS"
+    },
+    {
+      "id": "S-outcome-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-budget-state",
+      "status": "PASS"
+    },
+    {
+      "id": "S-breaker-state",
+      "status": "PASS"
+    },
+    {
+      "id": "S-probe-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-horizon-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "X-entity-sets",
+      "status": "PASS"
+    },
+    {
+      "id": "X-request-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-attempt-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-attempt-parentage",
+      "status": "PASS"
+    },
+    {
+      "id": "X-breaker-final-state",
+      "status": "PASS"
+    },
+    {
+      "id": "X-budget-consumption",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "the ledger is truncated, so the count of budget-consumption records is a window count; total consumption cannot be compared"
+      ]
+    },
+    {
+      "id": "X-probe-ledger",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "the ledger is truncated, so reserve/release counts cover only the retained window; the open permit balance cannot be established"
+      ]
+    },
+    {
+      "id": "X-tenant-active",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "the ledger is truncated, so requests admitted before the window are missing; active counts cannot be compared"
+      ]
+    }
+  ],
+  "no-snapshot": [
+    {
+      "id": "L-request-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-breaker-lifecycle",
+      "status": "PASS"
+    },
+    {
+      "id": "L-history-completeness",
+      "status": "PASS"
+    },
+    {
+      "id": "L-attempt-linkage",
+      "status": "PASS"
+    },
+    {
+      "id": "L-retry-budget-ledger",
+      "status": "PASS"
+    },
+    {
+      "id": "S-worker-conservation",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-worker-ownership",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-connection-ownership",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-waitlist-membership",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-connection-stranding",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-queue-consistency",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-lane-bounds",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-tenant-active",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-outcome-ledger",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-budget-state",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-breaker-state",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-probe-ledger",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "S-horizon-completeness",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; resource and bookkeeping properties cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-entity-sets",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-request-final-state",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-attempt-final-state",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-attempt-parentage",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-breaker-final-state",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-budget-consumption",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-probe-ledger",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    },
+    {
+      "id": "X-tenant-active",
+      "status": "INCONCLUSIVE",
+      "gaps": [
+        "snapshot evidence is absent; this cross-path fact cannot be established from the ledger alone"
+      ]
+    }
+  ]
+}
