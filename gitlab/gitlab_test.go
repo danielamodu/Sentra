@@ -105,8 +105,8 @@ func TestCIPipelineExecutionSuccessAndFailurePaths(t *testing.T) {
 	if !report.Passed {
 		t.Errorf("expected CI pipeline to pass, but failed: %s", report.BlockReason)
 	}
-	if len(report.Stages) != 9 {
-		t.Errorf("expected 9 CI stages, got %d", len(report.Stages))
+	if len(report.Stages) != 10 {
+		t.Errorf("expected 10 CI stages, got %d", len(report.Stages))
 	}
 
 	// 2. CI Failure Path: Malformed/Invalid Proposal JSON
