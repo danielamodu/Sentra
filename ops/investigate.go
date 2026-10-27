@@ -3,6 +3,7 @@ package ops
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 
 	"sentra/domain"
@@ -259,7 +260,14 @@ func Investigate(res *sim.RunResult) (*InvestigationReport, error) {
 	}
 
 	// Hypothesis D: Circuit Breaker Sensitivity & Recovery
+	var upstreams []string
 	for up := range res.Experiment.Config.Upstreams {
+		upstreams = append(upstreams, string(up))
+	}
+	sort.Strings(upstreams)
+
+	for _, upStr := range upstreams {
+		up := domain.UpstreamID(upStr)
 		breakerActive := false
 		if res.FinalState != nil && res.FinalState.Breakers != nil {
 			if br, ok := res.FinalState.Breakers[up]; ok && br != nil {
