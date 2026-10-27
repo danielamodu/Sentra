@@ -288,6 +288,26 @@ func (ae *AutonomousExperimenter) generateCandidateVariants(iteration int, baseC
 			},
 		})
 
+		// Variant 2: raise breaker failure threshold to increase resilience
+		variants = append(variants, candidateVariant{
+			id:   fmt.Sprintf("cand-breaker-thresh-it%d", iteration),
+			desc: "Raise breaker failure threshold",
+			mutate: func(cfg *sim.SystemConfig) []ParameterChange {
+				orig := cfg.Breaker.FailureThreshold
+				proposed := orig + iteration
+				if proposed > 10 {
+					proposed = 10
+				}
+				cfg.Breaker.FailureThreshold = proposed
+				return []ParameterChange{{
+					Parameter:     "breaker.failure_threshold",
+					OriginalValue: orig,
+					ProposedValue: proposed,
+					Reason:        "Prevent premature tripping on brief transient degradation spikes",
+				}}
+			},
+		})
+
 	default:
 		// Default tuning: tune worker pool or timeout
 		variants = append(variants, candidateVariant{
