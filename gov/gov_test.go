@@ -362,3 +362,47 @@ func TestAdversarialReplayResistance(t *testing.T) {
 		t.Errorf("SECURITY DEFECT: signature check failed to detect forged ProposalID")
 	}
 }
+
+func TestAdversarialAuditChainIntegrity(t *testing.T) {
+	log := NewAuditLog()
+
+	_, err := log.Append("prop-1", ActionInvestigated, "agent", "d1", "event 1")
+	if err != nil {
+		t.Fatalf("Append e1: %v", err)
+	}
+	_, err = log.Append("prop-1", ActionProposed, "agent", "d2", "event 2")
+	if err != nil {
+		t.Fatalf("Append e2: %v", err)
+	}
+	_, err = log.Append("prop-1", ActionApproved, "sarah-lead", "d3", "event 3")
+	if err != nil {
+		t.Fatalf("Append e3: %v", err)
+	}
+
+	if err := log.VerifyIntegrity(); err != nil {
+		t.Fatalf("baseline audit chain verification failed: %v", err)
+	}
+
+	// 1. Tamper with PrevHash of middle entry
+	logTamperedPrev := NewAuditLog()
+	logTamperedPrev.events = append([]AuditEvent{}, log.events...)
+	logTamperedPrev.events[1].PrevHash = "0000000000000000000000000000000000000000000000000000000000000000"
+	if err := logTamperedPrev.VerifyIntegrity(); err == nil {
+		t.Errorf("SECURITY DEFECT: audit log accepted corrupted PrevHash")
+	}
+
+	// 2. Tamper with EntryHash of middle entry
+	logTamperedEntry := NewAuditLog()
+	logTamperedEntry.events = append([]AuditEvent{}, log.events...)
+	logTamperedEntry.events[1].EntryHash = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+	if err := logTamperedEntry.VerifyIntegrity(); err == nil {
+		t.Errorf("SECURITY DEFECT: audit log accepted corrupted EntryHash")
+	}
+
+	// 3. Drop middle entry from chain (deletion attack)
+	logDropped := NewAuditLog()
+	logDropped.events = []AuditEvent{log.events[0], log.events[2]}
+	if err := logDropped.VerifyIntegrity(); err == nil {
+		t.Errorf("SECURITY DEFECT: audit log failed to detect deleted intermediate event")
+	}
+}
