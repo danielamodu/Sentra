@@ -1,0 +1,54 @@
+stages:
+  - test
+  - validate
+  - adjudicate
+  - govern
+  - promote
+
+default:
+  image: golang:1.24
+  before_script:
+    - go version
+
+unit-and-invariant-tests:
+  stage: test
+  script:
+    - gofmt -l .
+    - go vet ./...
+    - go test ./... -count=1
+
+proposal-boundary-validation:
+  stage: validate
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_COMMIT_BRANCH =~ /^ops\/proposal-/'
+  script:
+    - echo "Validating proposal schema and technical boundary allowlists..."
+    - go test ./ops -run TestTechnicalBoundariesAllowlistAndProtection -v
+
+ci-adjudication-pipeline:
+  stage: adjudicate
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_COMMIT_BRANCH =~ /^ops\/proposal-/'
+  script:
+    - echo "Running independent verifier adjudication over deterministic proposal simulation..."
+    - go test ./gitlab -run TestCIPipelineExecution -v
+
+governance-policy-enforcement:
+  stage: govern
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_COMMIT_BRANCH =~ /^ops\/proposal-/'
+  script:
+    - echo "Enforcing machine-enforceable governance policy and required properties..."
+    - go test ./gov -run TestPolicyValidation -v
+
+controlled-promotion:
+  stage: promote
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+  script:
+    - echo "Executing controlled promotion with post-promotion validation..."
+    - go test ./gitlab -run TestPromotionExecution -v
