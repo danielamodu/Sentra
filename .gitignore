@@ -1,0 +1,16 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output files
+scenario_run.txt
+
+# Editor and tooling
+.claude/
+.vscode/
+.idea/
