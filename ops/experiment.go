@@ -308,6 +308,39 @@ func (ae *AutonomousExperimenter) generateCandidateVariants(iteration int, baseC
 			},
 		})
 
+		// Variant 3: combined tuned cooldown and failure threshold
+		variants = append(variants, candidateVariant{
+			id:   fmt.Sprintf("cand-breaker-combined-it%d", iteration),
+			desc: "Combined tuned breaker cooldown and threshold",
+			mutate: func(cfg *sim.SystemConfig) []ParameterChange {
+				origCD := cfg.Breaker.Cooldown
+				propCD := origCD - domain.SimDuration(10_000_000*int64(iteration))
+				if propCD < 10_000_000 {
+					propCD = 10_000_000
+				}
+				cfg.Breaker.Cooldown = propCD
+
+				origThresh := cfg.Breaker.FailureThreshold
+				propThresh := origThresh + 1
+				cfg.Breaker.FailureThreshold = propThresh
+
+				return []ParameterChange{
+					{
+						Parameter:     "breaker.cooldown_ns",
+						OriginalValue: int64(origCD),
+						ProposedValue: int64(propCD),
+						Reason:        "Accelerate half-open recovery probes",
+					},
+					{
+						Parameter:     "breaker.failure_threshold",
+						OriginalValue: origThresh,
+						ProposedValue: propThresh,
+						Reason:        "Increase tolerance to brief fault bursts",
+					},
+				}
+			},
+		})
+
 	default:
 		// Default tuning: tune worker pool or timeout
 		variants = append(variants, candidateVariant{
