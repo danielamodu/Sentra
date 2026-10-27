@@ -55,6 +55,7 @@ type PromotionReport struct {
 	PromotedBy            string           `json:"promoted_by"`
 	AppliedConfig         sim.SystemConfig `json:"-"`
 	PostValidationVerdict *verify.Verdict  `json:"post_validation_verdict,omitempty"`
+	PostValidationStatus  string           `json:"post_validation_status,omitempty"`
 	Status                string           `json:"status"` // "SUCCESS", "REJECTED", "FAILED"
 	RejectionReason       string           `json:"rejection_reason,omitempty"`
 	AuditTrailHash        string           `json:"audit_trail_hash"`
