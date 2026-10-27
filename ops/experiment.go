@@ -267,21 +267,23 @@ func (ae *AutonomousExperimenter) generateCandidateVariants(iteration int, baseC
 		}
 
 	case SymptomPrematureBreakerTrip:
+		// Variant 1: reduce breaker cooldown to recover quickly after transient outage clears
 		variants = append(variants, candidateVariant{
-			id:   fmt.Sprintf("cand-breaker-thresh-it%d", iteration),
-			desc: "Raise breaker failure threshold",
+			id:   fmt.Sprintf("cand-breaker-cooldown-it%d", iteration),
+			desc: "Reduce breaker cooldown duration for faster probe recovery",
 			mutate: func(cfg *sim.SystemConfig) []ParameterChange {
-				orig := cfg.Breaker.FailureThreshold
-				proposed := orig + iteration
-				if proposed > 15 {
-					proposed = 15
+				orig := cfg.Breaker.Cooldown
+				delta := domain.SimDuration(15_000_000 * int64(iteration))
+				proposed := orig - delta
+				if proposed < 10_000_000 {
+					proposed = 10_000_000 // 10ms lower floor
 				}
-				cfg.Breaker.FailureThreshold = proposed
+				cfg.Breaker.Cooldown = proposed
 				return []ParameterChange{{
-					Parameter:     "breaker.failure_threshold",
-					OriginalValue: orig,
-					ProposedValue: proposed,
-					Reason:        "Prevent premature tripping on brief transient degradation spikes",
+					Parameter:     "breaker.cooldown_ns",
+					OriginalValue: int64(orig),
+					ProposedValue: int64(proposed),
+					Reason:        "Accelerate half-open recovery probes after upstream fault window clears",
 				}}
 			},
 		})
