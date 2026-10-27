@@ -104,9 +104,18 @@ func TestEndToEndIntegratedOperationsWorkflow(t *testing.T) {
 	if expRecord.BestCandidate == nil || expRecord.WinningProposal == nil {
 		t.Fatalf("no candidate survived autonomous exploration")
 	}
+	if expRecord.BestCandidate.Score <= expRecord.BaselineScore {
+		t.Fatalf("experiment engine failed to improve objective: best score %.2f <= baseline %.2f",
+			expRecord.BestCandidate.Score, expRecord.BaselineScore)
+	}
+	if expRecord.BestCandidate.Summary.Completed <= baselineRes.Summary.Completed {
+		t.Fatalf("experiment engine failed to improve goodput: best completed %d <= baseline %d",
+			expRecord.BestCandidate.Summary.Completed, baselineRes.Summary.Completed)
+	}
 	winningProp := *expRecord.WinningProposal
-	t.Logf("Winning Proposal [%s]: Score=%.2f (Baseline: %.2f)",
-		winningProp.ID, expRecord.BestCandidate.Score, expRecord.BaselineScore)
+	t.Logf("Winning Proposal [%s]: Score=%.2f (Baseline: %.2f), Goodput=%d (Baseline: %d)",
+		winningProp.ID, expRecord.BestCandidate.Score, expRecord.BaselineScore,
+		expRecord.BestCandidate.Summary.Completed, baselineRes.Summary.Completed)
 
 	t.Log("=== STEP 12: Governance lifecycle initialized and policy checked ===")
 	_, err = lm.InitProposal(winningProp.ID)
