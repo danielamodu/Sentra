@@ -259,3 +259,54 @@ evidence digest that covers the ledger and, when present, the snapshot; see
   reference run into a document and `verify` evaluates it; all ten currently
   reach `PASS`, which means the ledger, books and their agreement satisfy the P2
   contracts — not that M2's reported metrics have been cross-checked (P4).
+
+## 5. Integrated Operational Workflow (Milestones 5–7)
+
+Milestones 5–7 integrate the reference simulator and independent verifier into an
+autonomous, governed, GitLab-native operational engineering pipeline.
+
+```
++-----------------------------------------------------------------------------+
+|                      M5: Autonomous Operations Agent (ops)                  |
+|  - Telemetry Investigation: extracts factual measurements & degradation     |
+|  - Hypothesis Generation: maps observed symptoms to tunable parameters     |
+|  - Bounded Autonomous Experimentation: evaluates candidate configurations   |
+|  - Technical Boundaries: strictly enforces editable allowlists & protections|
+|  - Multi-Objective Ranking: scores candidates (goodput, waste, latency)     |
++-----------------------------------------------------------------------------+
+                                      |
+                                      v
++-----------------------------------------------------------------------------+
+|                  Independent Verifier (verify) & Evidence (evidence)        |
+|  - Adjudicates all candidates against 51 formal safety/liveness properties  |
+|  - Fails closed: rejects unsafe candidates with deterministic findings      |
++-----------------------------------------------------------------------------+
+                                      |
+                                      v
++-----------------------------------------------------------------------------+
+|                    M6: Governance & Authorization (gov)                     |
+|  - Explicit Lifecycle State Machine: DRAFT -> EXPERIMENTING -> VERIFIED ->  |
+|    PENDING_APPROVAL -> APPROVED -> PROMOTED                                 |
+|  - Machine-Enforceable Policy: bounds parameter ranges, deltas, invariants  |
+|  - Human Authorization Boundary: strict self-approval prevention            |
+|  - Cryptographic Binding: HMAC-SHA256 over config & verification digests   |
+|  - Append-Only Audit Trail: tamper-evident hash-chained event ledger        |
++-----------------------------------------------------------------------------+
+                                      |
+                                      v
++-----------------------------------------------------------------------------+
+|                     M7: GitLab-Native Delivery (gitlab)                     |
+|  - Proposal Branches & Artifact Bundling: proposal.json, config.diff, MRs   |
+|  - 10-Stage GitLab CI Pipeline: independently reproduces sim & adjudication |
+|  - Controlled Promotion Controller: enforces pre-flight checks, deploys,    |
+|    and executes post-promotion validation simulation                        |
++-----------------------------------------------------------------------------+
+```
+
+### Trust and Authority Separation
+- **Agent (`ops`):** Untrusted generator of operational hypotheses, candidate configurations, and proposals within strictly enforced technical allowlists.
+- **Independent Verifier (`verify`):** Sole authority for adjudicating evidence compliance against mathematical invariants without reference simulator imports.
+- **Governance (`gov`):** Enforces policy compliance, lifecycle integrity, approver role eligibility, and tamper-evident audit logging.
+- **Human Approver:** Holds exclusive authority to authorize promotion; agent self-approval is cryptographically and procedurally forbidden.
+- **GitLab CI (`gitlab`):** Authoritative execution platform independently reproducing simulation, verification, and policy gates.
+- **Promotion Controller:** Executes controlled deployment only upon valid, un-drifted human authorization, followed by mandatory post-promotion validation.

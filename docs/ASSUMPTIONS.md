@@ -495,3 +495,26 @@ Milestone 3 additions:
   inputs. Deterministic stream replay from raw pseudo-random seeds is left as an
   explicit gap (`H-seeded-replay`), ensuring the verifier never fabricates
   passing verdicts without independent proof.
+
+Milestone 5–7 additions:
+
+- **Technical Boundary Enforcement** — Operational parameters editable by the
+  autonomous agent are governed by an explicit technical allowlist and bounded
+  numerical ranges. Protected prefixes (`verifier.*`, `governance.*`, `auth.*`,
+  `evidence.*`, `deployment.*`) are rejected programmatically before any
+  simulation runs, ensuring agent boundaries do not rely on LLM prompt obedience.
+- **Multi-Objective Operational Scoring** — Candidate configurations are scored
+  using declared operational weights balancing goodput maximization (50%), waste
+  minimization (25%), latency mitigation (15%), and error stability (10%).
+- **Strict Self-Approval Prevention** — An AI agent or proposal author is strictly
+  forbidden from authorizing their own operational proposals. Human approval
+  must come from a designated role (`infrastructure-lead`) and is cryptographically
+  bound via HMAC-SHA256 to the exact configuration and verification digests.
+  Post-approval configuration or verification drift immediately invalidates approval.
+- **Fail-Closed CI/CD Adjudication** — The 10-stage GitLab CI adjudication pipeline
+  fails closed on any missing artifact, unverified property, or policy violation.
+  Promotion is strictly blocked until explicit human approval is verified.
+- **Append-Only Tamper-Evident Audit Logging** — All operational actions
+  (investigations, proposals, candidate evaluations, verifications, policy checks,
+  approvals, promotions) are recorded in a cryptographic hash chain. Any entry
+  tampering breaks hash continuity and is detected immediately.
